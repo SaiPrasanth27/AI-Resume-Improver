@@ -387,38 +387,20 @@ router.post('/generate-pdf-from-structured', async (req, res) => {
       return res.status(400).json({ message: 'Structured data or HTML content is required' });
     }
     
+    // For now, return the HTML content as a downloadable file
+    // This is a temporary solution until we can set up proper PDF generation
     const html = htmlContent || generateHTMLFromStructuredData(structuredData);
-    const pdf = require('html-pdf');
     
-    const options = {
-      format: 'A4',
-      border: {
-        top: '0.5in',
-        right: '0.5in',
-        bottom: '0.5in',
-        left: '0.5in'
-      },
-      type: 'pdf',
-      quality: '75'
-    };
+    const fileName = `improved-resume-${Date.now()}.html`;
+    res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Length', Buffer.byteLength(html));
     
-    pdf.create(html, options).toBuffer((err, buffer) => {
-      if (err) {
-        console.error('PDF generation error:', err);
-        return res.status(500).json({ message: 'Failed to generate PDF' });
-      }
-      
-      const fileName = `improved-resume-groq-${Date.now()}.pdf`;
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-      res.setHeader('Content-Length', buffer.length);
-      
-      res.end(buffer, 'binary');
-    });
+    res.send(html);
     
   } catch (error) {
-    console.error('PDF generation error:', error);
-    res.status(500).json({ message: 'Failed to generate PDF' });
+    console.error('HTML generation error:', error);
+    res.status(500).json({ message: 'Failed to generate resume file' });
   }
 });
 

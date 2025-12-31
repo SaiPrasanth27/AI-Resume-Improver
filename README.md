@@ -19,11 +19,11 @@ A full-stack MERN application that leverages advanced AI to intelligently improv
 
 | Home Page | Upload Interface | AI Processing |
 |-----------|------------------|---------------|
-| ![Home](screenshots/home.png) | ![Upload](screenshots/upload.png) | ![Processing](screenshots/processing.png) |
+| ![Home](screenshots/Home.png) | ![Upload](screenshots/UploadCV.png) | ![Job Details](screenshots/JobDetails.png) |
 
 | Results Page | Download PDF | User Dashboard |
 |--------------|--------------|----------------|
-| ![Results](screenshots/results.png) | ![Download](screenshots/download.png) | ![Dashboard](screenshots/dashboard.png) |
+| ![Results](screenshots/ImprovedCV.png) | ![Download](screenshots/ImprovedCV.png) | ![CoverLetter](screenshots/TailoredCoverLetter.png) |
 
 *Screenshots will be added after deployment*
 
