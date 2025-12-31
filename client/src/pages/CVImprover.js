@@ -92,7 +92,7 @@ const CVImprover = () => {
   const downloadImprovedCV = async () => {
     try {
       setProcessing(true);
-      console.log('Downloading improved resume...');
+      console.log('Downloading improved CV...');
       
       const response = await axios.post(`${API_URL}/api/cv/generate-pdf-from-structured`, {
         structuredData: results.structuredData,
@@ -105,20 +105,20 @@ const CVImprover = () => {
       });
 
       // Create download link
-      const blob = new Blob([response.data], { type: 'text/html' });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'improved-resume.html';
+      link.download = 'improved-resume.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      console.log('Resume downloaded successfully');
+      console.log('PDF downloaded successfully');
     } catch (error) {
-      console.error('Resume download error:', error);
-      setError('Failed to generate resume. Please try again.');
+      console.error('PDF download error:', error);
+      setError('Failed to generate PDF. Please try again.');
     } finally {
       setProcessing(false);
     }
@@ -366,7 +366,7 @@ const CVImprover = () => {
                     disabled={processing} 
                     className="btn btn-primary btn-large"
                   >
-                    {processing ? 'Generating Resume...' : 'Download Improved Resume'}
+                    {processing ? 'Generating PDF...' : 'Download Improved CV (PDF)'}
                   </button>
                 </div>
                 <div className="result-preview">

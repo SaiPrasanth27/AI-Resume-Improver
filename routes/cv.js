@@ -387,20 +387,47 @@ router.post('/generate-pdf-from-structured', async (req, res) => {
       return res.status(400).json({ message: 'Structured data or HTML content is required' });
     }
     
-    // For now, return the HTML content as a downloadable file
-    // This is a temporary solution until we can set up proper PDF generation
     const html = htmlContent || generateHTMLFromStructuredData(structuredData);
     
-    const fileName = `improved-resume-${Date.now()}.html`;
-    res.setHeader('Content-Type', 'text/html');
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.setHeader('Content-Length', Buffer.byteLength(html));
+    // Use Puppeteer with proper configuration for Render
+    const puppeteer = require('puppeteer');
     
-    res.send(html);
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
+    });
+    
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' },
+      printBackground: true
+    });
+    
+    await browser.close();
+    
+    const fileName = `improved-resume-${Date.now()}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    
+    res.end(pdfBuffer, 'binary');
     
   } catch (error) {
-    console.error('HTML generation error:', error);
-    res.status(500).json({ message: 'Failed to generate resume file' });
+    console.error('PDF generation error:', error);
+    res.status(500).json({ message: 'Failed to generate PDF. Please try again.' });
   }
 });
 
