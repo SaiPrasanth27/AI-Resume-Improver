@@ -68,7 +68,7 @@ A full-stack MERN application that leverages advanced AI to intelligently improv
 - **AI Integration**: Groq API (LLaMA 3.1 8B Instant)
 - **Authentication**: JWT (JSON Web Tokens)
 - **File Processing**: Multer, PDF-Parse
-- **PDF Generation**: Puppeteer
+- **PDF Generation**: html-pdf
 - **Security**: Helmet, CORS, Rate Limiting
 
 ### Frontend

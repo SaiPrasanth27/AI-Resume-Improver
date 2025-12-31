@@ -1,8 +1,10 @@
 # Dependencies
 node_modules/
 client/node_modules/
-DEPLOYMENT_CHECKLIST.md
-DEPLOYMENT_GUIDE.md
+
+# Documentation (except README)
+*.md
+!README.md
 
 # Environment variables
 .env
@@ -99,6 +101,3 @@ Thumbs.db
 
 # PDF files (generated resumes)
 *.pdf
-
-# Puppeteer
-.local-chromium

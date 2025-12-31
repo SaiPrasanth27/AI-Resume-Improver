@@ -388,30 +388,33 @@ router.post('/generate-pdf-from-structured', async (req, res) => {
     }
     
     const html = htmlContent || generateHTMLFromStructuredData(structuredData);
-    const puppeteer = require('puppeteer');
+    const pdf = require('html-pdf');
     
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    
-    const pdfBuffer = await page.pdf({
+    const options = {
       format: 'A4',
-      margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' },
-      printBackground: true
+      border: {
+        top: '0.5in',
+        right: '0.5in',
+        bottom: '0.5in',
+        left: '0.5in'
+      },
+      type: 'pdf',
+      quality: '75'
+    };
+    
+    pdf.create(html, options).toBuffer((err, buffer) => {
+      if (err) {
+        console.error('PDF generation error:', err);
+        return res.status(500).json({ message: 'Failed to generate PDF' });
+      }
+      
+      const fileName = `improved-resume-groq-${Date.now()}.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Length', buffer.length);
+      
+      res.end(buffer, 'binary');
     });
-    
-    await browser.close();
-    
-    const fileName = `improved-resume-groq-${Date.now()}.pdf`;
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.setHeader('Content-Length', pdfBuffer.length);
-    
-    res.end(pdfBuffer, 'binary');
     
   } catch (error) {
     console.error('PDF generation error:', error);
