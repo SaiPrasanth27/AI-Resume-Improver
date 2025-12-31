@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 client/node_modules/
+DEPLOYMENT_CHECKLIST.md
+DEPLOYMENT_GUIDE.md
 
 # Environment variables
 .env

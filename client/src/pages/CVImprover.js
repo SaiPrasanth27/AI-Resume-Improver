@@ -19,9 +19,6 @@ const CVImprover = () => {
   const [error, setError] = useState('');
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  const [latexCode, setLatexCode] = useState('');
-  const [showLatex, setShowLatex] = useState(false);
-
   // Check if user can use AI service
   const canUseAI = () => {
     if (!isAuthenticated) return true; // Allow guest usage
@@ -73,7 +70,7 @@ const CVImprover = () => {
     setError('');
 
     try {
-      console.log('Processing CV with correct pipeline: PDF → Text → AI JSON → HTML → PDF');
+      console.log('Processing CV with AI...');
       const response = await axios.post(`${API_URL}/api/cv/improve`, {
         cvContent: cvText,
         jobDescription: jobDescription,
@@ -81,7 +78,7 @@ const CVImprover = () => {
         position: position
       });
 
-      console.log('CV processing completed:', response.data.mode, response.data.pipeline);
+      console.log('CV processing completed successfully');
       setResults(response.data);
       setStep(3);
     } catch (error) {
@@ -92,87 +89,11 @@ const CVImprover = () => {
     }
   };
 
-  const generateLatexCode = async () => {
-    try {
-      setProcessing(true);
-      console.log('Generating LaTeX from structured data...');
-      
-      // For LaTeX generation, we'll use the old endpoint but with structured data
-      const response = await axios.post(`${API_URL}/api/cv/generate-latex`, {
-        improvedCV: results.structuredData ? JSON.stringify(results.structuredData, null, 2) : results.improvedCV,
-        analysis: results.analysis,
-        originalCV: cvText,
-        jobDescription: jobDescription,
-        companyName: companyName,
-        position: position
-      });
-
-      setLatexCode(response.data.latexCode);
-      setShowLatex(true);
-      console.log('LaTeX code generated successfully');
-    } catch (error) {
-      console.error('LaTeX generation error:', error);
-      setError('Failed to generate LaTeX code. Please try again.');
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const downloadLatexFile = () => {
-    const element = document.createElement('a');
-    const file = new Blob([latexCode], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'professional-cv.tex';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
-
-  const downloadPDFFromLatex = async () => {
-    try {
-      setProcessing(true);
-      console.log('Downloading PDF from LaTeX...');
-      
-      const response = await axios.post(`${API_URL}/api/cv/generate-pdf-from-latex`, {
-        improvedCV: results.structuredData ? JSON.stringify(results.structuredData, null, 2) : results.improvedCV,
-        analysis: results.analysis,
-        originalCV: cvText,
-        jobDescription: jobDescription,
-        companyName: companyName,
-        position: position
-      }, {
-        responseType: 'blob',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      // Create download link
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'enhanced-resume-latex-compiled.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      console.log('LaTeX PDF downloaded successfully');
-    } catch (error) {
-      console.error('LaTeX PDF download error:', error);
-      setError('Failed to compile LaTeX to PDF. Please use the LaTeX code with Overleaf manually.');
-    } finally {
-      setProcessing(false);
-    }
-  };
-
   const downloadImprovedCV = async () => {
     try {
       setProcessing(true);
-      console.log('Downloading PDF using correct pipeline...');
+      console.log('Downloading improved CV...');
       
-      // Use the new structured data endpoint
       const response = await axios.post(`${API_URL}/api/cv/generate-pdf-from-structured`, {
         structuredData: results.structuredData,
         htmlContent: results.htmlContent
@@ -188,16 +109,16 @@ const CVImprover = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'improved-resume-structured.pdf';
+      link.download = 'improved-resume.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      console.log('PDF downloaded successfully using correct pipeline');
+      console.log('PDF downloaded successfully');
     } catch (error) {
       console.error('PDF download error:', error);
-      setError('Failed to generate PDF using correct pipeline. Please try again.');
+      setError('Failed to generate PDF. Please try again.');
     } finally {
       setProcessing(false);
     }
@@ -223,40 +144,19 @@ const CVImprover = () => {
       <div className="cv-container">
         {/* Header */}
         <div className="cv-header">
-          <h1>🚀 AI CV Improver</h1>
-          <p>Upload your CV → Get power-verbed, achievement-quantified rewrite + tailored cover letter</p>
-          
-          {/* Usage Info for Authenticated Users */}
-          {isAuthenticated && user?.subscription === 'free' && (
-            <div className="usage-info-header">
-              <div className="usage-display">
-                <span className="usage-text">
-                  Monthly Usage: {user.usageCount}/{user.maxUsage}
-                </span>
-                <div className="usage-bar-header">
-                  <div 
-                    className="usage-progress-header" 
-                    style={{ width: `${Math.min((user.usageCount / user.maxUsage) * 100, 100)}%` }}
-                  ></div>
-                </div>
-                {getRemainingUsage() <= 1 && (
-                  <span className="usage-warning">
-                    {getRemainingUsage() === 0 ? '⚠️ Limit reached' : `⚠️ ${getRemainingUsage()} use remaining`}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
+          <h1>AI Resume Improver</h1>
+          <p>Transform your resume in 3 simple steps</p>
           
           {/* Guest User Encouragement */}
           {!isAuthenticated && (
             <div className="guest-info">
-              <p>💡 <strong>Sign up for free</strong> to save your improvements and get unlimited access!</p>
+              <p><strong>Sign up for free</strong> to save your improvements and get unlimited access!</p>
               <button onClick={() => setAuthModalOpen(true)} className="btn btn-outline btn-small">
-                🚀 Create Free Account
+                Create Free Account
               </button>
             </div>
           )}
+          
           <div className="progress-bar">
             <div 
               className={`progress-step ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`}
@@ -273,7 +173,7 @@ const CVImprover = () => {
               2. Job Details
             </div>
             <div className={`progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`}>
-              3. Results
+              3. Improved CV
             </div>
           </div>
         </div>
@@ -287,13 +187,13 @@ const CVImprover = () => {
         {/* Step 1: Upload CV */}
         {step === 1 && (
           <div className="step-content">
-            <h2>📄 Upload Your CV</h2>
+            <h2>Upload Your CV</h2>
             <p>Upload a PDF file or paste your CV text below</p>
             
             {/* Show current job details if coming back from step 2/3 */}
             {(companyName || position || jobDescription) && (
               <div className="current-job-info">
-                <h4>🎯 Current Job Target:</h4>
+                <h4>Current Job Target:</h4>
                 <div className="job-info-display">
                   {(companyName || position) && (
                     <p><strong>Position:</strong> {position || 'Not specified'} at {companyName || 'Not specified'}</p>
@@ -302,7 +202,7 @@ const CVImprover = () => {
                     <p><strong>Job Description:</strong> {jobDescription.substring(0, 100)}...</p>
                   )}
                   <button onClick={() => setStep(2)} className="btn btn-outline btn-small">
-                    ✏️ Edit Job Details
+                    Edit Job Details
                   </button>
                 </div>
               </div>
@@ -329,11 +229,11 @@ const CVImprover = () => {
               {cvText.length > 100 && (
                 <div className="continue-actions">
                   <button onClick={() => setStep(2)} className="btn btn-primary">
-                    Continue with Text →
+                    Continue with Text
                   </button>
                   {(companyName || position || jobDescription) && (
                     <button onClick={processCV} disabled={processing} className="btn btn-secondary">
-                      {processing ? '🤖 Processing...' : '⚡ Quick Process (Keep Job Details)'}
+                      {processing ? 'Processing...' : 'Quick Process (Keep Job Details)'}
                     </button>
                   )}
                 </div>
@@ -345,12 +245,12 @@ const CVImprover = () => {
         {/* Step 2: Job Details */}
         {step === 2 && (
           <div className="step-content">
-            <h2>🎯 Job Details (Optional but Recommended)</h2>
+            <h2>Job Details (Optional but Recommended)</h2>
             <p>Provide job details for a more targeted CV improvement</p>
             
             {/* CV Preview Section */}
             <div className="cv-preview-section">
-              <h4>📄 Your CV Content:</h4>
+              <h4>Your CV Content:</h4>
               <div className="cv-preview">
                 <div className="cv-preview-text">
                   {cvText.substring(0, 200)}...
@@ -359,7 +259,7 @@ const CVImprover = () => {
                   onClick={() => setStep(1)} 
                   className="btn btn-outline btn-small"
                 >
-                  ✏️ Edit CV
+                  Edit CV
                 </button>
               </div>
             </div>
@@ -401,14 +301,14 @@ const CVImprover = () => {
               
               <div className="form-actions">
                 <button onClick={() => setStep(1)} className="btn btn-secondary">
-                  ← Back to CV Upload
+                  Back to CV Upload
                 </button>
                 <button 
                   onClick={processCV} 
                   disabled={processing}
                   className="btn btn-primary btn-large"
                 >
-                  {processing ? '🤖 Processing CV...' : '✨ Improve My CV'}
+                  {processing ? 'Processing CV...' : 'Improve My CV'}
                 </button>
               </div>
             </div>
@@ -418,15 +318,15 @@ const CVImprover = () => {
         {/* Step 3: Results */}
         {step === 3 && results && (
           <div className="step-content">
-            <h2>🎉 Your Improved CV is Ready!</h2>
+            <h2>Your Improved CV is Ready!</h2>
             
-            {/* Navigation Summary */}
+            {/* Quick Navigation */}
             <div className="navigation-summary">
               <div className="nav-item">
-                <span className="nav-label">CV Source:</span>
-                <span className="nav-value">{cvText.length > 50 ? 'Uploaded/Entered' : 'None'}</span>
+                <span className="nav-label">CV:</span>
+                <span className="nav-value">Uploaded Successfully</span>
                 <button onClick={() => setStep(1)} className="btn btn-outline btn-small">
-                  ✏️ Edit CV
+                  Edit CV
                 </button>
               </div>
               <div className="nav-item">
@@ -435,83 +335,56 @@ const CVImprover = () => {
                   {position || companyName ? `${position || 'Position'} at ${companyName || 'Company'}` : 'General Optimization'}
                 </span>
                 <button onClick={() => setStep(2)} className="btn btn-outline btn-small">
-                  ✏️ Edit Job Details
+                  Edit Job Details
                 </button>
               </div>
             </div>
             
             <div className="results-section">
-              {/* Pipeline Info */}
-              {results.pipeline && (
-                <div className="pipeline-info">
-                  <h4>🔄 Processing Pipeline Used:</h4>
-                  <p><strong>{results.pipeline}</strong> (Mode: {results.mode})</p>
-                </div>
-              )}
-              
               {/* CV Analysis Score */}
               <div className="analysis-card">
-                <h3>📊 CV Analysis</h3>
+                <h3>CV Analysis</h3>
                 <div className="score-display">
                   <div className="score-circle">
                     <span className="score-number">{results.analysis?.score || 85}</span>
                     <span className="score-label">Score</span>
                   </div>
                   <div className="score-details">
-                    <p><strong>Structure Detection:</strong> {results.analysis?.structureDetection || 'AI-Powered'}</p>
-                    <p><strong>Content Enhancement:</strong> {results.analysis?.contentEnhancement || 'High'}</p>
+                    <p><strong>Content Quality:</strong> {results.analysis?.contentEnhancement || 'Excellent'}</p>
                     <p><strong>ATS Optimization:</strong> {results.analysis?.atsOptimization || 'Strong'}</p>
-                    <p><strong>Structure Clarity:</strong> {results.analysis?.structureClarity || 'Good'}</p>
+                    <p><strong>Structure:</strong> {results.analysis?.structureClarity || 'Professional'}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Professional Output Options */}
+              {/* Download Section */}
               <div className="result-card">
                 <div className="result-header">
-                  <h3>📝 Professional CV Output</h3>
-                  <div className="result-actions">
-                    <button onClick={generateLatexCode} disabled={processing} className="btn btn-primary">
-                      {processing ? '🔄 Generating...' : '📄 Generate LaTeX Code'}
-                    </button>
-                    <button onClick={downloadImprovedCV} disabled={processing} className="btn btn-secondary">
-                      {processing ? '🔄 Generating...' : '📄 Download Clean PDF'}
-                    </button>
-                  </div>
+                  <h3>Download Your Improved CV</h3>
+                  <button 
+                    onClick={downloadImprovedCV} 
+                    disabled={processing} 
+                    className="btn btn-primary btn-large"
+                  >
+                    {processing ? 'Generating PDF...' : 'Download Improved CV'}
+                  </button>
                 </div>
                 <div className="result-preview">
                   <p className="preview-text">
-                    Your resume has been processed using the correct pipeline: <strong>{results.pipeline || 'PDF → Text → AI JSON → HTML → PDF'}</strong>
+                    Your resume has been enhanced with AI-powered improvements including:
                   </p>
-                  <div className="output-options">
-                    <div className="option-card">
-                      <h4>🎓 LaTeX Code (Advanced)</h4>
-                      <p>Generate LaTeX code for maximum customization and professional formatting</p>
-                      <ul>
-                        <li>✅ Professional LaTeX output</li>
-                        <li>✅ Full customization control</li>
-                        <li>✅ Perfect for academic/research positions</li>
-                        <li>✅ Compile with Overleaf or local LaTeX</li>
-                      </ul>
-                    </div>
-                    <div className="option-card">
-                      <h4>📄 Clean PDF (Recommended)</h4>
-                      <p>Structured, clean resume using the correct pipeline - ready to use immediately</p>
-                      <ul>
-                        <li>✅ AI-structured content from extracted text</li>
-                        <li>✅ Clean HTML template rendering</li>
-                        <li>✅ ATS-optimized formatting</li>
-                        <li>✅ Instant download</li>
-                        <li>✅ Professional appearance</li>
-                        <li>✅ No layout preservation issues</li>
-                      </ul>
-                    </div>
-                  </div>
+                  <ul className="improvement-features">
+                    <li>Professional formatting and structure</li>
+                    <li>ATS-optimized keywords and layout</li>
+                    <li>Enhanced content and descriptions</li>
+                    <li>Industry-standard formatting</li>
+                    <li>Ready for job applications</li>
+                  </ul>
                   
                   {/* Show structured data preview if available */}
                   {results.structuredData && (
                     <div className="structured-preview">
-                      <h4>📋 Detected Resume Structure:</h4>
+                      <h4>Resume Structure Detected:</h4>
                       <div className="structure-summary">
                         <div className="structure-item">
                           <strong>Name:</strong> {results.structuredData.header?.name || 'Detected'}
@@ -534,72 +407,13 @@ const CVImprover = () => {
                 </div>
               </div>
 
-              {/* LaTeX Code Display */}
-              {showLatex && latexCode && (
-                <div className="result-card latex-card">
-                  <div className="result-header">
-                    <h3>📜 Professional LaTeX Code</h3>
-                    <div className="result-actions">
-                      <button onClick={() => copyToClipboard(latexCode)} className="btn btn-outline">
-                        📋 Copy LaTeX Code
-                      </button>
-                      <button onClick={downloadLatexFile} className="btn btn-secondary">
-                        💾 Download .tex File
-                      </button>
-                      <button 
-                        onClick={downloadPDFFromLatex} 
-                        disabled={processing}
-                        className="btn btn-primary"
-                      >
-                        {processing ? '🔄 Compiling...' : '📄 Download PDF'}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="latex-instructions">
-                    <h4>🚀 How to Use Your LaTeX CV:</h4>
-                    <div className="instruction-options">
-                      <div className="instruction-method">
-                        <h5>Option 1: Direct PDF Download (Easiest)</h5>
-                        <ol>
-                          <li>Click "📄 Download PDF" button above</li>
-                          <li>LaTeX will be compiled automatically</li>
-                          <li>Your professional PDF will download instantly</li>
-                          <li>Ready to use for job applications!</li>
-                        </ol>
-                      </div>
-                      <div className="instruction-method">
-                        <h5>Option 2: Online Compilation</h5>
-                        <ol>
-                          <li>Go to <a href="https://overleaf.com" target="_blank" rel="noopener noreferrer">Overleaf.com</a></li>
-                          <li>Create a new project</li>
-                          <li>Paste the LaTeX code</li>
-                          <li>Click "Recompile" to generate PDF</li>
-                        </ol>
-                      </div>
-                      <div className="instruction-method">
-                        <h5>Option 3: Local Installation</h5>
-                        <ol>
-                          <li>Install LaTeX: <a href="https://miktex.org/" target="_blank" rel="noopener noreferrer">MiKTeX (Windows)</a></li>
-                          <li>Save code as 'resume.tex'</li>
-                          <li>Run: <code>pdflatex resume.tex</code></li>
-                          <li>Your professional PDF is ready!</li>
-                        </ol>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="latex-code-container">
-                    <pre className="latex-code">{latexCode}</pre>
-                  </div>
-                </div>
-              )}
-
               {/* Cover Letter */}
               {results.coverLetter && (
                 <div className="result-card">
                   <div className="result-header">
-                    <h3>💌 Bonus: Tailored Cover Letter</h3>
+                    <h3>Bonus: Tailored Cover Letter</h3>
                     <button onClick={() => copyToClipboard(results.coverLetter)} className="btn btn-outline">
-                      📋 Copy Text
+                      Copy Text
                     </button>
                   </div>
                   <div className="result-content cover-letter">
@@ -611,7 +425,7 @@ const CVImprover = () => {
               {/* Key Improvements */}
               {results.improvements && (
                 <div className="result-card">
-                  <h3>🔧 Key Improvements Made</h3>
+                  <h3>Key Improvements Made</h3>
                   <ul className="improvements-list">
                     {results.improvements.map((improvement, index) => (
                       <li key={index}>{improvement}</li>
@@ -622,10 +436,10 @@ const CVImprover = () => {
 
               <div className="final-actions">
                 <button onClick={() => setStep(2)} className="btn btn-secondary">
-                  ← Edit Job Details
+                  Edit Job Details
                 </button>
                 <button onClick={startOver} className="btn btn-outline btn-large">
-                  🔄 Start Over with New CV
+                  Start Over with New CV
                 </button>
               </div>
             </div>

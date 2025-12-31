@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import Navbar from './components/Layout/Navbar';
 import CVImprover from './pages/CVImprover';
+import Home from './pages/Home';
 import './App.css';
 
 // Loading component
@@ -17,7 +18,7 @@ const LoadingSpinner = () => (
     color: '#666'
   }}>
     <div>
-      <div style={{ marginBottom: '10px' }}>🚀 Loading AI CV Improver...</div>
+      <div style={{ marginBottom: '10px' }}>Loading AI Resume Improver...</div>
       <div style={{ 
         width: '40px', 
         height: '40px', 
@@ -46,6 +47,7 @@ const AppContent = () => {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<CVImprover />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/cv-improver" element={<CVImprover />} />
           </Routes>
         </main>
@@ -59,7 +61,7 @@ function App() {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       console.clear();
-      console.log('🚀 AI CV Improver - Development Mode');
+      console.log('AI Resume Improver - Development Mode');
     }
   }, []);
 

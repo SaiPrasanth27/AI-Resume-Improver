@@ -11,26 +11,20 @@ const Home = () => {
       <section className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
-            Improve Your Resume with AI
+            Transform Your Resume with AI
           </h1>
           <p className="hero-subtitle">
-            Get personalized feedback, optimize for ATS systems, and land your dream job
-            with our AI-powered resume analysis and improvement tool.
+            Upload your resume, add job details, and get an AI-improved version 
+            that stands out to recruiters and passes ATS systems.
           </p>
           <div className="hero-actions">
-            {isAuthenticated ? (
-              <Link to="/dashboard" className="btn btn-primary btn-large">
-                Go to Dashboard
+            <Link to="/cv-improver" className="btn btn-primary btn-large">
+              Start Improving Your Resume
+            </Link>
+            {!isAuthenticated && (
+              <Link to="/register" className="btn btn-secondary btn-large">
+                Sign Up Free
               </Link>
-            ) : (
-              <>
-                <Link to="/register" className="btn btn-primary btn-large">
-                  Get Started Free
-                </Link>
-                <Link to="/login" className="btn btn-secondary btn-large">
-                  Sign In
-                </Link>
-              </>
             )}
           </div>
         </div>
@@ -38,55 +32,59 @@ const Home = () => {
 
       <section className="features">
         <div className="container">
-          <h2 className="section-title">Why Choose AI Resume Improver?</h2>
+          <h2 className="section-title">Simple 3-Step Process</h2>
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">🤖</div>
-              <h3>AI-Powered Analysis</h3>
+              <div className="feature-icon">1</div>
+              <h3>1. Upload Your Resume</h3>
               <p>
-                Advanced AI algorithms analyze your resume and provide detailed
-                feedback on content, structure, and optimization opportunities.
+                Upload your PDF resume or paste your text. Our AI will 
+                analyze your content and structure.
               </p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">🎯</div>
-              <h3>ATS Optimization</h3>
+              <div className="feature-icon">2</div>
+              <h3>2. Add Job Details</h3>
               <p>
-                Ensure your resume passes Applicant Tracking Systems with
-                keyword optimization and formatting recommendations.
+                Provide the job description and company details to get 
+                targeted improvements for your specific application.
               </p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">📊</div>
-              <h3>Detailed Scoring</h3>
+              <div className="feature-icon">3</div>
+              <h3>3. Download Improved Resume</h3>
               <p>
-                Get comprehensive scores and metrics to understand exactly
-                how to improve your resume's effectiveness.
+                Get your AI-enhanced resume with better formatting, 
+                optimized content, and professional structure.
               </p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">✨</div>
-              <h3>Content Enhancement</h3>
-              <p>
-                Receive suggestions for stronger action verbs, better formatting,
-                and more impactful descriptions of your achievements.
-              </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="benefits">
+        <div className="container">
+          <h2 className="section-title">Why Choose Our AI Resume Improver?</h2>
+          <div className="benefits-grid">
+            <div className="benefit-item">
+              <div className="benefit-icon">AI</div>
+              <h4>AI-Powered Enhancement</h4>
+              <p>Advanced AI analyzes and improves your resume content</p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">🔄</div>
-              <h3>Multiple Versions</h3>
-              <p>
-                Create and manage multiple resume versions tailored for
-                different job applications and industries.
-              </p>
+            <div className="benefit-item">
+              <div className="benefit-icon">ATS</div>
+              <h4>ATS Optimization</h4>
+              <p>Ensures your resume passes Applicant Tracking Systems</p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">🚀</div>
-              <h3>Career Growth</h3>
-              <p>
-                Track your progress and see how your resume improves over time
-                with our analytics and version history.
-              </p>
+            <div className="benefit-item">
+              <div className="benefit-icon">FAST</div>
+              <h4>Fast & Easy</h4>
+              <p>Get results in minutes with our simple 3-step process</p>
+            </div>
+            <div className="benefit-item">
+              <div className="benefit-icon">PRO</div>
+              <h4>Professional Format</h4>
+              <p>Clean, modern formatting that recruiters love</p>
             </div>
           </div>
         </div>
@@ -95,16 +93,14 @@ const Home = () => {
       <section className="cta">
         <div className="container">
           <div className="cta-content">
-            <h2>Ready to Transform Your Resume?</h2>
+            <h2>Ready to Improve Your Resume?</h2>
             <p>
-              Join thousands of professionals who have improved their resumes
-              and landed better jobs with our AI-powered platform.
+              Join thousands of job seekers who have enhanced their resumes 
+              and landed better opportunities with our AI-powered tool.
             </p>
-            {!isAuthenticated && (
-              <Link to="/register" className="btn btn-primary btn-large">
-                Start Your Free Analysis
-              </Link>
-            )}
+            <Link to="/cv-improver" className="btn btn-primary btn-large">
+              Get Started Now - It's Free!
+            </Link>
           </div>
         </div>
       </section>

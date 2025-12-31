@@ -99,7 +99,7 @@ const FileUpload = ({ onTextExtracted, onError }) => {
           </div>
         ) : (
           <div className="upload-content">
-            <div className="upload-icon">📄</div>
+            <div className="upload-icon">PDF</div>
             <h3>Upload PDF Resume</h3>
             <p>Drag and drop your PDF here, or click to browse</p>
             <small>Maximum file size: 5MB</small>

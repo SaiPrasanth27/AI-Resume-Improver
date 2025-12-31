@@ -29,14 +29,10 @@ const Navbar = () => {
       <nav className="navbar">
         <div className="navbar-container">
           <Link to="/" className="navbar-brand">
-            🚀 AI CV Improver
+            AI Resume Improver
           </Link>
           
           <div className="navbar-menu">
-            <div className="navbar-tagline">
-              Triple your interview rate with AI-powered CV optimization
-            </div>
-            
             <div className="navbar-auth">
               {isAuthenticated ? (
                 <div className="user-menu">
@@ -58,7 +54,7 @@ const Navbar = () => {
                           <strong>{user.name}</strong>
                           <span>{user.email}</span>
                           <span className={`subscription-badge ${user.subscription}`}>
-                            {user.subscription === 'premium' ? '⭐ Premium' : '🆓 Free'}
+                            {user.subscription === 'premium' ? 'Premium' : 'Free'}
                           </span>
                         </div>
                       </div>
@@ -77,7 +73,7 @@ const Navbar = () => {
                       
                       <div className="user-dropdown-actions">
                         <button onClick={logout} className="dropdown-action">
-                          🚪 Sign Out
+                          Sign Out
                         </button>
                       </div>
                     </div>
@@ -86,10 +82,10 @@ const Navbar = () => {
               ) : (
                 <div className="header-auth">
                   <button onClick={handleSignIn} className="btn btn-outline">
-                    🔐 Sign In
+                    Sign In
                   </button>
                   <button onClick={handleSignUp} className="btn btn-primary">
-                    🚀 Sign Up
+                    Sign Up
                   </button>
                 </div>
               )}
