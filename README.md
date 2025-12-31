@@ -23,7 +23,7 @@ A full-stack MERN application that leverages advanced AI to intelligently improv
 
 | Results Page | Download PDF | User Dashboard |
 |--------------|--------------|----------------|
-| ![Results](screenshots/ImporvedCV.png) | ![Download](screenshots/ImprovedCV.png) | ![Dashboard](screenshots/TailoredCoverLetter.png) |
+| ![Results](screenshots/ImprovedCV.png) | ![Download](screenshots/ImprovedCV.png) | ![CoverLetter](screenshots/TailoredCoverLetter.png) |
 
 *Screenshots will be added after deployment*
 
