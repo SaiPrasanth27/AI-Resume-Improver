@@ -48,7 +48,13 @@ app.use(limiter);
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:3001',
+    'https://ai-resume-improver.vercel.app',
+    'https://ai-resume-improver-frontend.vercel.app',
+    /\.vercel\.app$/
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
