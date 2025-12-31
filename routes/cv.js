@@ -387,36 +387,105 @@ router.post('/generate-pdf-from-structured', async (req, res) => {
       return res.status(400).json({ message: 'Structured data or HTML content is required' });
     }
     
-    const html = htmlContent || generateHTMLFromStructuredData(structuredData);
+    // Use jsPDF to create PDF from structured data
+    const { jsPDF } = require('jspdf');
+    const doc = new jsPDF();
     
-    // Use Puppeteer with proper configuration for Render
-    const puppeteer = require('puppeteer');
+    // Set up the PDF with structured data
+    let yPosition = 20;
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
     
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
-      ]
-    });
+    // Helper function to add text with word wrapping
+    const addText = (text, fontSize = 12, isBold = false) => {
+      doc.setFontSize(fontSize);
+      if (isBold) {
+        doc.setFont(undefined, 'bold');
+      } else {
+        doc.setFont(undefined, 'normal');
+      }
+      
+      const lines = doc.splitTextToSize(text, contentWidth);
+      doc.text(lines, margin, yPosition);
+      yPosition += lines.length * (fontSize * 0.4) + 5;
+      
+      // Add new page if needed
+      if (yPosition > 280) {
+        doc.addPage();
+        yPosition = 20;
+      }
+    };
     
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    // Generate PDF content from structured data
+    if (structuredData) {
+      // Header
+      if (structuredData.header) {
+        addText(structuredData.header.name || 'Resume', 20, true);
+        if (structuredData.header.email) addText(structuredData.header.email, 12);
+        if (structuredData.header.phone) addText(structuredData.header.phone, 12);
+        yPosition += 10;
+      }
+      
+      // Summary
+      if (structuredData.summary) {
+        addText('SUMMARY', 14, true);
+        addText(structuredData.summary, 11);
+        yPosition += 10;
+      }
+      
+      // Experience
+      if (structuredData.experience && structuredData.experience.length > 0) {
+        addText('EXPERIENCE', 14, true);
+        structuredData.experience.forEach(exp => {
+          addText(`${exp.position || 'Position'} at ${exp.company || 'Company'}`, 12, true);
+          if (exp.duration) addText(exp.duration, 10);
+          if (exp.description) addText(exp.description, 11);
+          yPosition += 5;
+        });
+        yPosition += 10;
+      }
+      
+      // Projects
+      if (structuredData.projects && structuredData.projects.length > 0) {
+        addText('PROJECTS', 14, true);
+        structuredData.projects.forEach(project => {
+          addText(project.name || 'Project', 12, true);
+          if (project.description) addText(project.description, 11);
+          yPosition += 5;
+        });
+        yPosition += 10;
+      }
+      
+      // Education
+      if (structuredData.education && structuredData.education.length > 0) {
+        addText('EDUCATION', 14, true);
+        structuredData.education.forEach(edu => {
+          addText(`${edu.degree || 'Degree'} - ${edu.institution || 'Institution'}`, 12, true);
+          if (edu.year) addText(edu.year, 10);
+          yPosition += 5;
+        });
+        yPosition += 10;
+      }
+      
+      // Skills
+      if (structuredData.skills) {
+        addText('SKILLS', 14, true);
+        if (structuredData.skills.technical) {
+          addText('Technical: ' + structuredData.skills.technical.join(', '), 11);
+        }
+        if (structuredData.skills.soft) {
+          addText('Soft Skills: ' + structuredData.skills.soft.join(', '), 11);
+        }
+      }
+    } else {
+      // Fallback: simple text content
+      addText('IMPROVED RESUME', 20, true);
+      addText('Your resume has been processed and improved by AI.', 12);
+    }
     
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' },
-      printBackground: true
-    });
-    
-    await browser.close();
+    // Generate PDF buffer
+    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
     
     const fileName = `improved-resume-${Date.now()}.pdf`;
     res.setHeader('Content-Type', 'application/pdf');
